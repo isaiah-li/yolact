@@ -1,4 +1,4 @@
-from backbone import ResNetBackbone, VGGBackbone, ResNetBackboneGN, DarkNetBackbone
+from backbone import ResNetBackbone, VGGBackbone, ResNetBackboneGN, DarkNetBackbone, MobileNetV2_Backbone
 from math import sqrt
 import torch
 
@@ -140,9 +140,10 @@ coco2014_dataset = dataset_base.copy({
 coco2017_dataset = dataset_base.copy({
     'name': 'COCO 2017',
     
-    'train_info': './data/coco/annotations/instances_train2017.json',
-    'valid_info': './data/coco/annotations/instances_val2017.json',
-
+    'train_info': '/mnt/data/coco/annotations2017/instances_train2017.json',
+    'valid_info': '/mnt/data/coco/annotations2017/instances_val2017.json',
+    'train_images': '/mnt/data/coco/train2017',
+    'valid_images': '/mnt/data/coco/val2017',
     'label_map': COCO_LABEL_MAP
 })
 
@@ -297,6 +298,24 @@ vgg16_backbone = backbone_base.copy({
     'pred_scales': [[5, 4]]*6,
     'pred_aspect_ratios': [ [[1], [1, sqrt(2), 1/sqrt(2), sqrt(3), 1/sqrt(3)][:n]] for n in [3, 5, 5, 5, 3, 3] ],
 })
+
+#####ljc
+
+mobilenetv2_backbone = resnet50_backbone.copy({
+    'name': 'MobileNetV2_Backbone',
+    'path': 'mobilenetv2_1.0-0c6065bc.pth',
+    'type': MobileNetV2_Backbone,
+    'args': (),
+    # 'transform': resnet_transform,
+
+    'selected_layers': [1, 2, 3],
+    'pred_scales': [[24], [48], [96], [192], [384]],
+    'pred_aspect_ratios': [ [[1, 1/2, 2]] ]*5,     ###[[[1.414]]] * 5,
+    'use_pixel_scales': False,
+})
+
+
+
 
 
 
@@ -766,6 +785,16 @@ yolact_resnet50_pascal_config = yolact_resnet50_config.copy({
         'use_square_anchors': False,
     })
 })
+
+#####ljc
+yolact_mobilenetv2_coco_config = yolact_resnet50_config.copy({
+    'name': 'yolact_mobilenetv2_coco',
+
+    'backbone': mobilenetv2_backbone.copy(),
+
+    'use_semantic_segmentation_loss': True
+})
+
 
 # ----------------------- YOLACT++ CONFIGS ----------------------- #
 
